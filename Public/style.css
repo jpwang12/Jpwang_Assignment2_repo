@@ -1,0 +1,44 @@
+
+.custom-gray-bg {
+    background-color: rgb(233, 118, 118); 
+  }
+  
+  .btn-outline-primary {
+    
+      color: #FFF;
+      background-color: burlywood;
+      border-color: rgb(0, 0, 0);
+  
+  }
+  
+  .btn-outline-primary:hover {
+    background-color: burlywood;
+    border-color: #ffffff;
+    color: #fffefe;
+  }
+
+h1 {
+    color: black;
+    font-family: fantasy;
+}
+
+p{
+    color: black;
+    font-style: oblique;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
+}
+
+img{
+  height: 200px;
+  width: 200px;
+}
+
+.container{
+  text-align: center;
+}
+
+  .container img {
+    object-fit: cover; 
+    height: 300;
+    width: 300;
+  }
