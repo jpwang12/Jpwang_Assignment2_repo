@@ -11,11 +11,11 @@ window.onload = function() {
 }
 
 
-// Get references to the password input and the show password checkbox
+// password reference and checkbox 
 let passwordInput = document.getElementById('password');
 let showPasswordCheckbox = document.getElementById('showPasswordCheckbox');
 
-// Add an event listener to the checkbox to toggle password visibility
+// check box to look at visibility 
 showPasswordCheckbox.addEventListener('change', function () {
     passwordInput.type = this.checked ? 'text' : 'password';
 });

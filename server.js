@@ -10,6 +10,13 @@ app.use(express.urlencoded({ extended: true }));
 //retrieves information from public
 app.use(express.static(__dirname + '/Public'));
 
+const fs = require("fs");
+const qs = require("querystring");
+const crypto = require('crypto');
+
+let raw_user_reg_data = fs.readFileSync("./user_data.json");
+let user_reg_data = JSON.parse(raw_user_reg_data);
+
 //input the product array from the json file
 let products = require(__dirname + '/products.json');
 products.forEach( (prod,i) => {prod.total_sold = 0});
@@ -34,6 +41,7 @@ app.post("/process_form", function (request, response) {
     let url = '';
     let soldArray =[];
 
+
     //for each member of qtys
     for (i in qtys) {
         
@@ -57,14 +65,19 @@ app.post("/process_form", function (request, response) {
                 url += `&prod${i}=${q}`
             }
             
-            
         }
+
         //if the validate quantity string has stuff in it, set valid to false
          else {
             
             valid = false;
             url += `&prod${i}=${q}`
         }
+
+        if (request.body.user) {
+            url += `&user=${request.body.user}`;
+        }
+
         //check if no products were bought, set valid to false if so
         if(url == `&prod0=0&prod1=0&prod2=0&prod3=0&prod4=0&prod5=0`){
             valid = false
@@ -76,7 +89,9 @@ app.post("/process_form", function (request, response) {
        
         response.redirect(`products_display.html?error=true` + url);
         
-        
+    // redirt to login if no account  
+    } else if (!url.includes("user")) {
+        response.redirect('./login.html?' + url);
     }
     //otherwise, redirect to the invoice with the url attached
     else{
@@ -117,6 +132,43 @@ function validateQuantity(quantity){
     }
 
 }
+
+// assignment 2 
+app.post("/process_login", function(request,response) {
+    user_arr = request.body["email"].split("@");
+    attempted_user = user_arr[0].toLowerCase();
+    attempted_pass = request.body['password'];
+    delete request.body.email;
+    delete request.body.password;
+    delete request.body.submit;
+    let data = qs.stringify(request.body);
+
+
+    if (typeof user_reg_data[attempted_user] != undefined) {
+        if (user_reg_data[attempted_user]["password"] == sha256(attempted_pass)){
+            if (Object.keys(data).length !=2){
+                response.redirect ("./products_display.html?user=" + attempted_user + data +"&submit=yes");
+            } else {
+                response.redirect("./products_display.html?user="+attempted_user);
+            }
+        } else{
+            response.redirect("./login.html?error=pass&"+data);
+        }
+    } else {
+        response.redirect("/login.html?error=user&" + data);
+    }
+
+
+})
+
+// password encryption using crypto
+function sha256(inputPass) {
+    const hash = crypto.createHash('sha256');
+    hash.update(inputPass);
+    return hash.digest('hex');
+}
+
+
 
 // Start the server; listen on port 8080 for incoming HTTP requests
 app.listen(8080, () => console.log(`listening on port 8080`));

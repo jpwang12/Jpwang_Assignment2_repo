@@ -3,6 +3,18 @@ let params = (new URL(document.location)).searchParams;
 let error;
 let order = [];
 
+if (params.has('user')){
+    document.getElementById('user-data').innerHTML =`
+        <input type ="hidden" id="user" name="user" value="${params.get('user')}">
+    `
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    if (params.has("ready")) {
+        document.getElementById("qty_form").onsubmit();
+    }
+})
+
 //get if there was an error before
 error = params.get('error');
 
@@ -21,7 +33,7 @@ if(error == 'true'){
 
 /*
 For each item in the selection:
-    Model the image by placing it above
+    Model the image by placing it above 
     Enter the model's title, price, availability, and total sold in the model body located in products[i].
 
    Make an input with a placeholder value of 0 so that when entered, it validates the quantity.
@@ -78,5 +90,5 @@ for (let i = 0; i < products.length; i++) {
         }
         //set valMessage to the innerHTML to the section
         document.getElementById(`invalidQuantity${quantity.id}`).innerHTML = valMessage;
-        //console.log(products[quantity.id])
+        //console.log(products[quantity.id]) 
     } 
