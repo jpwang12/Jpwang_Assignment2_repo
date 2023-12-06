@@ -164,7 +164,62 @@ app.post("/purchase_logout", function (request, response) {
     response.redirect('./products_display.html');
 })
 
-//post
+//post login form
+app.post("/process_login", function (request, response) {
+    // Retrieve the data from the request body
+    let POST = request.body;
+    let entered_email = POST['email'].toLowerCase();
+    let entered_password = POST['password'];
+
+    // Check if the entered email and password are empty
+    if (entered_email.length == 0 && entered_password.length == 0) {
+        // Set an error message indicating that the email and password should be entered
+        response.query.loginError = 'Please enter email and password';
+    }
+    // If the entered email exists in the user_data object
+    else if (user_data[entered_email]) {
+        // Check if the entered password matches the password associated with the entered email
+        if (user_data[entered_email].password == entered_password) {
+            // If the password is correct, create a temporary user object with the entered email and name
+            temp_user['email'] = entered_email;
+            user_arr = entered_email.split("@");
+            temp_user['user'] = user_arr[0];
+            temp_user['name'] = user_data[entered_email].name;
+
+            // Log the temporary user object
+            console.log(temp_user);
+
+            // Create a URLSearchParams object with the temporary user object
+            let params = new URLSearchParams(temp_user);
+            // Redirect the user to the invoice page with a query parameter indicating success and the temporary user information
+            response.redirect(`./products_display.html?valid=true&${params.toString()}&submit=yes`);
+            return;
+        }
+        // If the entered password is empty
+        else if (entered_password == 0) {
+            // Set an error message indicating that the password should be entered
+            request.query.loginError = 'Please enter password';
+        }
+        // If the entered password is incorrect
+        else {
+            // Set an error message indicating that the password is incorrect
+            request.query.loginError = 'Incorrect password';
+        }
+    }
+    // If the entered email does not exist in the user_data object
+    else {
+        // Set an error message indicating that the email is incorrect
+        request.query.loginError = 'Incorrect email';
+    }
+
+    // Set the entered email as a query parameter in the request
+    request.query.email = entered_email;
+    // Create a URLSearchParams object with the request query parameters
+    let params = new URLSearchParams(request.query);
+    // Redirect the user back to the login page with the query parameters indicating the login error and the entered email
+    response.redirect (`./login.html?${params.toString()}`);
+});
+
 
 
 //post register 
