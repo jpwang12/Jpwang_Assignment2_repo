@@ -168,6 +168,100 @@ function sha256(inputPass) {
     return hash.digest('hex');
 }
 
+// Registration Form (helped from EthanSchwartz)
+//Declare registration errors
+let registration_errors = {};
+
+app.post("/process_register", function (request, response) {
+    //Get user's input from form
+    let reg_name = request.body.name;
+    let reg_email = request.body.email.toLowerCase();
+    let reg_password = request.body.password;
+    let reg_confirm_password = request.body.confirm_password;
+
+    //Validate Password
+    validateConfirmPassword(reg_password, reg_confirm_password);
+    validatePassword(reg_password);
+    //Validate Email to see if it's only letters and "@"  "." and domain names
+    validateEmail(reg_email);
+    //Validate Name to see if it's only letters
+    validateName(reg_name);
+
+
+    //Server Response to check if there are no errors
+    if (Object.keys(registration_errors).length == 0) {
+        user_data[reg_email] = {};
+        user_data[reg_email].name = reg_name;
+        user_data[reg_email].password = reg_password;
+        
+        //Write the updated user_data object to the user_data.json file
+        fs.writeFile(__dirname + '/user_data.json', JSON.stringify(user_data), 'utf-8', (error) => {
+            if (error) {
+                //If there's an error while writing the file, log the error message
+                console.log('error updating user_data', error);
+            } else {
+                //If the file is written successfully, log a success message
+                console.log('File written successfully. User data is updated.');
+
+            //Add user's info to temp_user
+            temp_user['name'] = reg_name;
+            temp_user['email'] = reg_email;
+
+            //console log temp_user
+            console.log(temp_user);
+            console.log(user_data);
+
+            let params = new URLSearchParams(temp_user);
+            response.redirect(`/invoice.html?regSuccess&valid&${params.toString()}`);
+            }
+        });
+            
+        
+    }else { //If there are errors
+        delete request.body.password;
+        delete request.body.confirm_password;
+
+        let params = new URLSearchParams(request.body);
+        response.redirect(`/registration.html?${params.toString()}&${qs.stringify(registration_errors)}`);
+    }
+});
+function validateConfirmPassword(password, confirm_password) {
+    delete registration_errors['confirm_password_type'];
+    console.log(registration_errors);
+
+    if (confirm_password !== password) {
+        registration_errors ['confirm_password_type'] = 'Passwords do not match';
+    }
+}
+
+// Validate Password Function
+function validatePassword(password) {
+    if (password.length < 10 || password.length > 16) {
+        registration_errors.password_error = "Password must be between 10 and 16 characters.";
+    } else if (/\s/.test(password)) {
+        registration_errors.password_error = "Password cannot contain spaces.";
+    }
+    // Add more password validation rules as needed
+}
+
+
+// Validate Email Function
+function validateEmail(email) {
+    // Basic email validation using a regular expression
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+        registration_errors.email_error = "Invalid email format.";
+    }
+}
+
+//Validate Name
+function validateName(name) {
+    // Basic name validation using a regular expression
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!nameRegex.test(name)) {
+        registration_errors.name_error = "Invalid name format.";
+    }
+}
 
 
 // Start the server; listen on port 8080 for incoming HTTP requests
