@@ -133,7 +133,41 @@ function validateQuantity(quantity){
 
 }
 
-// assignment 2 
+//assignment 2
+
+//post purchase
+app.post("/purchase_logout", function (request, response) {
+    // Loop through each product in the products array
+    for (let i in products) {
+        // Increment the quantity sold of the current product by the number specified in the temp_user object
+        products[i].qty_sold += Number(temp_user[`qty${[i]}`]);
+        // Decrease the available quantity of the current product by the number specified in the temp_user object
+        products[i].qty_available = products[i].qty_available - Number(temp_user[`qty${[i]}`]);
+    }
+
+    // Write the updated products array to the products.json file
+    fs.writeFile(__dirname + '/products.json', JSON.stringify(products), 'utf-8', (error) => {
+        if (error) {
+            // If there's an error while writing the file, log the error message
+            console.log('error updating products', error);
+        } else {
+            // If the file is written successfully, log a success message
+            console.log('File written successfully. Products are updated.');
+        }
+    });
+
+    // Remove the 'email' and 'name' properties from the temp_user object
+    delete temp_user['email'];
+    delete temp_user['name'];
+
+    // Redirect the user to the products_display.html page
+    response.redirect('./products_display.html');
+})
+
+//post
+
+
+//post register 
 app.post("/process_login", function(request,response) {
     user_arr = request.body["email"].split("@");
     attempted_user = user_arr[0].toLowerCase();
