@@ -255,7 +255,7 @@ app.post("/process_register", function (request, response) {
         delete request.body.confirm_password;
 
         let params = new URLSearchParams(request.body);
-        response.redirect(`/registration.html?${params.toString()}&${qs.stringify(registration_errors)}`);
+        response.redirect(`/register.html?${params.toString()}&${qs.stringify(registration_errors)}`);
     }
 });
 function validateConfirmPassword(password, confirm_password) {
